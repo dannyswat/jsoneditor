@@ -1,36 +1,26 @@
-import { JsonNodeStringEditor } from "./JsonNodeStringEditor";
-import { JsonNodeNumberEditor } from "./JsonNodeNumberEditor";
-import { JsonNodeBooleanEditor } from "./JsonNodeBooleanEditor";
-import { JsonNodeDefaultValueEditor } from "./JsonNodeDefaultValueEditor";
-import { JsonNodeKeyEditor } from "./JsonNodeKeyEditor";
+import { JsonNodeStringEditor } from './JsonNodeStringEditor';
+import { JsonNodeNumberEditor } from './JsonNodeNumberEditor';
+import { JsonNodeBooleanEditor } from './JsonNodeBooleanEditor';
+import { JsonNodeDefaultValueEditor } from './JsonNodeDefaultValueEditor';
+import { JsonNodeKeyEditor } from './JsonNodeKeyEditor';
 
-interface JsonNodeEntryEditorProps {
-  nodeKey: string;
+interface JsonNodeEditorProps {
   value: unknown;
-  level: number;
   onChange: (value: unknown) => void;
-  onKeyChange: (key: string) => void;
+  level: number;
 }
 
-function JsonNodeEntryEditor({
-  nodeKey,
-  value,
-  level,
-  onChange,
-  onKeyChange,
-}: JsonNodeEntryEditorProps) {
+function JsonNodeEditor({ value, level, onChange }: JsonNodeEditorProps) {
   return (
-    <div style={{ marginLeft: `${level * 10}px` }}>
-      <JsonNodeKeyEditor nodeKey={nodeKey} onChange={onKeyChange} />
-      <span>: </span>
+    <>
       {value === null && <JsonNodeDefaultValueEditor onChange={onChange} />}
-      {typeof value === "string" && (
+      {typeof value === 'string' && (
         <JsonNodeStringEditor value={value} onChange={onChange} />
       )}
-      {typeof value === "number" && (
+      {typeof value === 'number' && (
         <JsonNodeNumberEditor value={value} onChange={onChange} />
       )}
-      {typeof value === "boolean" && (
+      {typeof value === 'boolean' && (
         <JsonNodeBooleanEditor value={value} onChange={onChange} />
       )}
       {isObject(value) && (
@@ -41,8 +31,49 @@ function JsonNodeEntryEditor({
         />
       )}
       {isArray(value) && (
-        <JsonNodeArrayEditor level={level} value={value} onChange={onChange} />
+        <JsonNodeArrayEditor
+          level={level}
+          value={value}
+          onChange={onChange}
+          onDelete={(i) => onChange(value.filter((_, idx) => idx !== i))}
+        />
       )}
+    </>
+  );
+}
+
+interface JsonNodeEntryEditorProps {
+  nodeKey: string;
+  value: unknown;
+  level: number;
+  onChange: (value: unknown) => void;
+  onKeyChange: (key: string) => void;
+  onDelete: () => void;
+}
+
+function JsonNodeEntryEditor({
+  nodeKey,
+  value,
+  level,
+  onChange,
+  onKeyChange,
+  onDelete,
+}: JsonNodeEntryEditorProps) {
+  return (
+    <div style={{ marginLeft: `${level * 10}px` }}>
+      <JsonNodeKeyEditor nodeKey={nodeKey} onChange={onKeyChange} />
+      <span>: </span>
+      <JsonNodeEditor value={value} onChange={onChange} level={level} />
+      <a
+        href="javascript:void(0)"
+        onClick={(e) => {
+          e.preventDefault();
+          if (confirm('Are you sure you want to delete this entry?'))
+            onDelete();
+        }}
+      >
+        -
+      </a>
     </div>
   );
 }
@@ -76,7 +107,17 @@ export function JsonNodeObjectEditor({
 }: JsonNodeObjectEditorProps) {
   return (
     <>
-      <span>{"{"}</span>
+      <span>{'{'}</span>
+      <a
+        href="javascript:void(0)"
+        onClick={(e) => {
+          e.preventDefault();
+          const newKey = getDefaultNewKey(value);
+          onChange({ ...value, [newKey]: null });
+        }}
+      >
+        +
+      </a>
       {Object.entries(value).map(([key, nodeValue]) => (
         <JsonNodeEntryEditor
           key={key}
@@ -88,17 +129,31 @@ export function JsonNodeObjectEditor({
             onChange(newValue);
           }}
           onChange={(newValue) => onChange({ ...value, [key]: newValue })}
+          onDelete={() => {
+            const { ...newObj } = value;
+            delete newObj[key];
+            onChange(newObj);
+          }}
         />
       ))}
-      <span>{"}"}</span>
+      <span>{'}'}</span>
     </>
   );
+}
+
+function getDefaultNewKey(obj: Record<string, unknown>) {
+  const keys = new Set(Object.keys(obj));
+  let index = 1;
+  while (keys.has(`newKey${index}`)) {
+    index++;
+  }
+  return `newKey${index}`;
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return (
     !Array.isArray(value) &&
-    typeof value === "object" &&
+    typeof value === 'object' &&
     value !== null &&
     value !== undefined
   );
@@ -108,32 +163,50 @@ interface JsonNodeArrayEditorProps {
   value: unknown[];
   level: number;
   onChange: (value: unknown[]) => void;
+  onDelete: (index: number) => void;
 }
 
 export function JsonNodeArrayEditor({
   level,
   value,
   onChange,
+  onDelete,
 }: JsonNodeArrayEditorProps) {
   return (
     <>
-      <span>{"["}</span>
+      <span>{'['}</span>
+      <a
+        href="javascript:void(0)"
+        onClick={(e) => {
+          e.preventDefault();
+          onChange([...value, null]);
+        }}
+      >
+        +
+      </a>
       {value.map((nodeValue, index) => (
         <>
           {index > 0 && <span>, </span>}
-          {isObject(nodeValue) && (
-            <JsonNodeObjectEditor
-              key={index}
-              level={level + 1}
-              value={nodeValue}
-              onChange={(newValue) =>
-                onChange(value.map((v, i) => (i === index ? newValue : v)))
-              }
-            />
-          )}
+          <JsonNodeEditor
+            value={nodeValue}
+            level={level + 1}
+            onChange={(newValue) =>
+              onChange(value.map((v, i) => (i === index ? newValue : v)))
+            }
+          />
+          <a
+            href="javascript:void(0)"
+            onClick={(e) => {
+              e.preventDefault();
+              if (confirm('Are you sure you want to delete this entry?'))
+                onDelete(index);
+            }}
+          >
+            -
+          </a>
         </>
       ))}
-      <span>{"]"}</span>
+      <span>{']'}</span>
     </>
   );
 }
