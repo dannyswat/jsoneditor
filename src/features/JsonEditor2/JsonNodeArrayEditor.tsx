@@ -75,7 +75,7 @@ function JsonArrayElementEditor({
     <>
       {isObjectOrArray && (
         <>
-          <JsonLine level={level}>
+          <JsonLine level={level} style={{ userSelect: 'none' }}>
             {({ isHovered }) => (
               <>
                 <span style={{ color: '#F88' }}>{nodeKey}</span>

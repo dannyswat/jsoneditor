@@ -20,6 +20,7 @@ export function ActionButton({
         border: 'none',
         outline: 'none',
         cursor: 'pointer',
+        userSelect: 'none',
       }}
       onClick={() => {
         if (!confirmMessage || confirm(confirmMessage)) onClick();

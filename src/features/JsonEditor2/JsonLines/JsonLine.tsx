@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ComponentProps, ReactNode, useState } from 'react';
 
 import './JsonLine.css';
 
@@ -7,11 +7,18 @@ interface JsonLineProps {
   children: ReactNode | ((props: { isHovered: boolean }) => ReactNode);
 }
 
-export default function JsonLine({ level, children }: JsonLineProps) {
+export default function JsonLine({
+  level,
+  children,
+  style,
+  ...props
+}: JsonLineProps & Omit<ComponentProps<'div'>, 'children'>) {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
+      {...props}
       style={{
+        ...style,
         counterIncrement: 'json-line',
       }}
       className="json-line"
