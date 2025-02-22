@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 interface JsonNodeStringEditorProps {
   value: string;
@@ -19,7 +19,7 @@ export function JsonNodeStringEditor({
 
   if (!editing) {
     return (
-      <span style={{ color: "#88F" }} onClick={() => setEditing(true)}>
+      <span style={{ color: '#88F' }} onClick={() => setEditing(true)}>
         "{value}"
       </span>
     );
@@ -31,6 +31,12 @@ export function JsonNodeStringEditor({
       type="text"
       value={newValue}
       onChange={(e) => setNewValue(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          onChange(newValue);
+          setEditing(false);
+        }
+      }}
       onBlur={() => {
         onChange(newValue);
         setEditing(false);

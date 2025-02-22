@@ -1,21 +1,28 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import { JsonObject } from "./features/JsonEditor/models";
-import { JsonNodeObjectEditor } from "./features/JsonEditor/JsonNodeEditor";
+import JsonEditor from './features/JsonEditor2/JsonEditor';
+import { isObject, JsonObject } from './features/JsonEditor2/JsonObject';
 
 function App() {
   const [json, setJson] = useState<JsonObject>({
-    text: "Hello",
-    value: "World",
+    text: 'Hello',
+    value: 'World',
     arr: [
-      { a: "a", b: "b" },
-      { a: "c", b: "d" },
+      { a: 'a', b: 'b' },
+      { a: 'c', b: 'd' },
     ],
-    nested: { text: "2nd level", value: "haha" },
+    nested: { text: '2nd level', value: 'haha' },
     new: null,
   });
 
-  return <JsonNodeObjectEditor level={0} value={json} onChange={setJson} />;
+  return (
+    <JsonEditor
+      value={json}
+      onChange={(value) => {
+        if (isObject(value)) setJson(value);
+      }}
+    />
+  );
 }
 
 export default App;
