@@ -1,4 +1,4 @@
-interface ActionButtonProps {
+export interface ActionButtonProps {
   children: React.ReactNode;
   confirmMessage?: string;
   onClick: () => void;

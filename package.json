@@ -1,8 +1,12 @@
 {
-  "name": "jsoneditor",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "danjsoneditor",
+  "description": "A simple JSON editor",
+  "private": false,
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

@@ -3,7 +3,7 @@ import { JsonNodeArrayEditor } from './JsonNodeArrayEditor';
 import { JsonNodeObjectEditor } from './JsonNodeObjectEditor';
 import { JsonObject } from './JsonObject';
 
-interface JsonEditorProps {
+export interface JsonEditorProps {
   value: JsonObject | JsonArray;
   onChange: (value: JsonObject | JsonArray) => void;
 }
